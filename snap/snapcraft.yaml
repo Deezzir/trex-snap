@@ -51,6 +51,8 @@ parts:
       - libnuma-dev
       - python3
       - pkg-config
+    stage-packages:
+      - pciutils
     override-build: |
       cd linux_dpdk
       ./b configure --no-mlx=all
