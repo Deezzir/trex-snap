@@ -56,6 +56,8 @@ parts:
       cd ..
       dest="${CRAFT_PART_INSTALL}/opt/trex"
       mkdir -p "${dest}"
+      # Drop links to optional components that were not built (e.g. BIRD).
+      find scripts -xtype l -delete
       cp -rL scripts/. "${dest}/"
       rm -rf "${dest}"/*-debug* "${dest}"/so/ppc64le "${dest}"/so/arm
       find "${dest}" -name "__pycache__" -prune -exec rm -rf {} +
