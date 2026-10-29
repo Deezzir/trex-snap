@@ -35,31 +35,6 @@ Before you can begin, you will need to:
 
 ## Contributing Code
 
-### Build
-
-The snap builds on core22. On a host running another Ubuntu release, build in
-an LXD container:
-
-```sh
-snapcraft pack --use-lxd
-```
-
-### Test
-
-Install the local build and connect its interfaces:
-
-```sh
-sudo snap install --dangerous trex-generator_*_amd64.snap
-for i in network-control hardware-observe process-control system-observe; do
-  sudo snap connect trex-generator:$i
-done
-```
-
-Connect two kernel interfaces back to back (for example, two NICs on one
-bridge), put a configuration under `/var/snap/trex-generator/common`, start the
-server, and send traffic from port 0 to port 1 with `trex-generator.python`.
-Check for AppArmor denials with `journalctl -k | grep DENIED`.
-
 ### Workflow
 
 1. **Choose/Create an Issue**: Before starting work on an enhancement, create an issue that explains your use case. This helps track progress and keeps the discussion organized. The issue will be tracked on the GitHub issue page.
@@ -78,7 +53,7 @@ Check for AppArmor denials with `journalctl -k | grep DENIED`.
 
 ### Hard Requirements
 
-* **Testing**: Changes must be built and tested under strict confinement as described in [Test](#test).
+* **Testing**: Changes must be built and tested under strict confinement as described in the [README](README.md#test).
 
 * **Sign Your Commits**: Be sure to [sign your commits](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits), refer to the [Prerequisites](#prerequisites) section.
 

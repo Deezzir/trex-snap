@@ -7,10 +7,29 @@ description: |
   fuelled by DPDK. This snap packages the TRex server, console and Python
   automation client from the upstream trex-core source.
 
-  The server runs in af_packet mode on kernel interfaces, under strict
-  confinement. It reads its configuration from
-  /var/snap/trex-generator/common; select the file with
-  `snap set trex-generator config=<path relative to that directory>`.
+  The server runs in af_packet mode on kernel interfaces, without hugepages
+  or NIC driver binding. DPDK PCI mode is not supported under strict
+  confinement.
+
+  **Setup**
+
+      sudo snap connect trex-generator:network-control
+      sudo snap connect trex-generator:hardware-observe
+      sudo snap connect trex-generator:process-control
+      sudo snap connect trex-generator:system-observe
+
+  **Configuration**
+
+  Configuration files, scripts and their output live in
+  /var/snap/trex-generator/common. Select the server configuration with
+  `sudo snap set trex-generator config=<path relative to that directory>`
+  (default `trex_cfg.yaml`), or pass `--cfg <absolute path>`.
+
+  **Commands**
+
+  - `trex-generator.t-rex-64`: TRex server
+  - `trex-generator.console`: interactive console
+  - `trex-generator.python`: Python with the TRex automation client
 
   Upstream: https://github.com/cisco-system-traffic-generator/trex-core
 license: Apache-2.0
