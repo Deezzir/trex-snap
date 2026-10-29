@@ -1,4 +1,4 @@
-name: trex
+name: trex-generator
 base: core22
 version: "3.08"
 summary: Cisco TRex realistic traffic generator
