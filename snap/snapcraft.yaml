@@ -61,6 +61,11 @@ parts:
       cp /tmp/six-1.17.0/six.py scripts/external_libs/scapy-2.4.3/scapy/modules/six.py
       sed -i 's/^import imp$/import importlib as imp/' \
         scripts/automation/trex_control_plane/interactive/trex/stl/trex_stl_streams.py
+      # distutils is gone in 3.12: only strtobool and find_executable are used.
+      sed -i 's/^from distutils.util import strtobool$/strtobool = lambda v: v.strip().lower() in ("y", "yes", "t", "true", "on", "1")/' \
+        scripts/dpdk_nic_bind.py
+      sed -i -e 's/^from distutils import spawn$/import shutil/' -e 's/spawn\.find_executable(/shutil.which(/g' \
+        scripts/automation/trex_control_plane/interactive/trex/console/trex_capture.py
     override-build: |
       cd linux_dpdk
       # Newer GCC rejects upstream warnings promoted to errors; GCC 11 builds it as-is.
