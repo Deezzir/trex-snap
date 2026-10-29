@@ -24,10 +24,7 @@ apps:
       - network
       - network-bind
       - network-control
-      - hardware-observe
-      - system-observe
-      - process-control
-      - hugepages-control
+      - network-observe
   console:
     command: bin/trex-python $SNAP/opt/trex/trex-console
     plugs:
