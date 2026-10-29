@@ -1,5 +1,5 @@
 name: trex
-base: core24
+base: core22
 version: "3.08"
 summary: Cisco TRex realistic traffic generator
 description: |
@@ -7,12 +7,15 @@ description: |
   fuelled by DPDK. This snap packages the TRex server, console and Python
   automation client from the upstream trex-core source.
 
+  The server reads its configuration from $SNAP_COMMON (/var/snap/trex/common).
+  Select the file with `snap set trex config=<path relative to $SNAP_COMMON>`.
+
   Upstream: https://github.com/cisco-system-traffic-generator/trex-core
 license: Apache-2.0
 grade: devel
-confinement: devmode
-platforms:
-  amd64:
+confinement: strict
+architectures:
+  - build-on: amd64
 
 apps:
   t-rex-64:
@@ -40,37 +43,18 @@ parts:
     plugin: nil
     source: https://github.com/cisco-system-traffic-generator/trex-core.git
     source-type: git
+    # v3.08 is untagged upstream; this is the "v3.0.8" release commit.
     source-commit: e2777369716b9a8872ada0d1ddeab6e8164d19ce
     build-packages:
-      - gcc-11
-      - g++-11
+      - build-essential
       - zlib1g-dev
       - libnuma-dev
       - python3
       - pkg-config
-      - curl
-    override-pull: |
-      craftctl default
-      # Python 3.12: scapy 2.4.3 bundles six 1.10 (no find_spec), and the STL
-      # client imports the removed imp module.
-      curl -fsSLo /tmp/six.tar.gz \
-        https://files.pythonhosted.org/packages/source/s/six/six-1.17.0.tar.gz
-      echo "ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81  /tmp/six.tar.gz" \
-        | sha256sum -c -
-      tar -xzf /tmp/six.tar.gz -C /tmp six-1.17.0/six.py
-      cp /tmp/six-1.17.0/six.py scripts/external_libs/scapy-2.4.3/scapy/modules/six.py
-      sed -i 's/^import imp$/import importlib as imp/' \
-        scripts/automation/trex_control_plane/interactive/trex/stl/trex_stl_streams.py
-      # distutils is gone in 3.12: only strtobool and find_executable are used.
-      sed -i 's/^from distutils.util import strtobool$/strtobool = lambda v: v.strip().lower() in ("y", "yes", "t", "true", "on", "1")/' \
-        scripts/dpdk_nic_bind.py
-      sed -i -e 's/^from distutils import spawn$/import shutil/' -e 's/spawn\.find_executable(/shutil.which(/g' \
-        scripts/automation/trex_control_plane/interactive/trex/console/trex_capture.py
     override-build: |
       cd linux_dpdk
-      # Newer GCC rejects upstream warnings promoted to errors; GCC 11 builds it as-is.
-      CC=gcc-11 CXX=g++-11 ./b configure --no-mlx=all
-      CC=gcc-11 CXX=g++-11 ./b build -j"${CRAFT_PARALLEL_BUILD_COUNT}" --no-old
+      ./b configure --no-mlx=all
+      ./b build -j"${CRAFT_PARALLEL_BUILD_COUNT}" --no-old
       cd ..
       dest="${CRAFT_PART_INSTALL}/opt/trex"
       mkdir -p "${dest}"

@@ -1,4 +1,13 @@
 #!/bin/bash
 set -e
+# DPDK keeps its runtime files (config, telemetry socket) under RUNTIME_DIRECTORY.
+export RUNTIME_DIRECTORY="$SNAP_DATA/run"
+mkdir -p "$RUNTIME_DIRECTORY"
+args=("$@")
+if [[ " $* " != *" --cfg"* ]]; then
+  config="$(snapctl get config)"
+  args+=(--cfg "$SNAP_COMMON/${config:-trex_cfg.yaml}")
+fi
+# The upstream launcher expects its own directory as cwd.
 cd "$SNAP/opt/trex"
-exec ./t-rex-64 "$@"
+exec ./t-rex-64 "${args[@]}"

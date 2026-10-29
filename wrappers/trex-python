@@ -3,8 +3,4 @@ set -e
 export PYTHONPATH="$SNAP/opt/trex/automation/trex_control_plane/interactive${PYTHONPATH:+:$PYTHONPATH}"
 export TREX_EXT_LIBS="$SNAP/opt/trex/external_libs"
 export PYTHONDONTWRITEBYTECODE=1
-python=/usr/bin/python3
-if [ "$SNAP_CONFINEMENT" = classic ]; then
-  python=/snap/core24/current/usr/bin/python3
-fi
-exec "$python" "$@"
+exec python3 "$@"
