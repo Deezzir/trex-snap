@@ -10,17 +10,30 @@ description: |
   Upstream: https://github.com/cisco-system-traffic-generator/trex-core
 license: Apache-2.0
 grade: devel
-confinement: classic
+confinement: devmode
 platforms:
   amd64:
 
 apps:
   t-rex-64:
     command: bin/trex-server
+    plugs:
+      - network
+      - network-bind
+      - network-control
+      - hardware-observe
+      - system-observe
+      - process-control
+      - hugepages-control
   console:
     command: bin/trex-python $SNAP/opt/trex/trex-console
+    plugs:
+      - network
   python:
     command: bin/trex-python
+    plugs:
+      - network
+      - network-bind
 
 parts:
   trex:
