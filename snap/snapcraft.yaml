@@ -1,7 +1,13 @@
 name: trex-generator
 base: core22
 version: "3.08"
+license: Apache-2.0
 summary: Cisco TRex realistic traffic generator
+grade: stable
+confinement: strict
+icon: snap/gui/icon.png
+issues: https://github.com/Deezzir/trex-snap/issues
+source-code: https://github.com/Deezzir/trex-snap
 description: |
   TRex is an open source, low cost, stateful and stateless traffic generator
   fuelled by DPDK. This snap packages the TRex server, console and Python
@@ -32,9 +38,6 @@ description: |
   - `trex-generator.python`: Python with the TRex automation client
 
   Upstream: https://github.com/cisco-system-traffic-generator/trex-core
-license: Apache-2.0
-grade: stable
-confinement: strict
 architectures:
   - build-on: amd64
 
