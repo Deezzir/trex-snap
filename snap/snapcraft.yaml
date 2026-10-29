@@ -7,12 +7,14 @@ description: |
   fuelled by DPDK. This snap packages the TRex server, console and Python
   automation client from the upstream trex-core source.
 
-  The server reads its configuration from $SNAP_COMMON (/var/snap/trex/common).
-  Select the file with `snap set trex config=<path relative to $SNAP_COMMON>`.
+  The server runs in af_packet mode on kernel interfaces, under strict
+  confinement. It reads its configuration from
+  /var/snap/trex-generator/common; select the file with
+  `snap set trex-generator config=<path relative to that directory>`.
 
   Upstream: https://github.com/cisco-system-traffic-generator/trex-core
 license: Apache-2.0
-grade: devel
+grade: stable
 confinement: strict
 architectures:
   - build-on: amd64
@@ -24,7 +26,9 @@ apps:
       - network
       - network-bind
       - network-control
-      - network-observe
+      - hardware-observe
+      - system-observe
+      - process-control
   console:
     command: bin/trex-python $SNAP/opt/trex/trex-console
     plugs:
