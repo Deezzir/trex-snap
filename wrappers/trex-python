@@ -1,0 +1,13 @@
+#!/bin/bash
+# Python with the TRex automation client and its bundled libraries importable.
+set -e
+export PYTHONPATH="$SNAP/opt/trex/automation/trex_control_plane/interactive${PYTHONPATH:+:$PYTHONPATH}"
+export TREX_EXT_LIBS="$SNAP/opt/trex/external_libs"
+export PYTHONDONTWRITEBYTECODE=1
+# Use core24's Python: it is /usr/bin under strict confinement, but a classic
+# snap sees the host's /usr, so reach the base snap by path.
+python=/usr/bin/python3
+if [ "$SNAP_CONFINEMENT" = classic ]; then
+  python=/snap/core24/current/usr/bin/python3
+fi
+exec "$python" "$@"

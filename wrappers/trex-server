@@ -1,0 +1,4 @@
+#!/bin/bash
+# Run the upstream TRex launcher from the snap's install directory.
+set -e
+exec "$SNAP/opt/trex/t-rex-64" "$@"

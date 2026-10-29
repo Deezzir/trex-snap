@@ -1,0 +1,68 @@
+name: trex
+base: core24
+version: "3.08"
+summary: Cisco TRex realistic traffic generator
+description: |
+  TRex is an open source, low cost, stateful and stateless traffic generator
+  fuelled by DPDK. This snap packages the TRex server, console and Python
+  automation client from the upstream trex-core source.
+
+  Upstream: https://github.com/cisco-system-traffic-generator/trex-core
+license: Apache-2.0
+grade: devel
+confinement: classic
+platforms:
+  amd64:
+
+apps:
+  t-rex-64:
+    command: bin/trex-server
+  console:
+    command: bin/trex-python $SNAP/opt/trex/trex-console
+  python:
+    command: bin/trex-python
+
+parts:
+  trex:
+    plugin: nil
+    source: https://github.com/cisco-system-traffic-generator/trex-core.git
+    source-type: git
+    source-commit: e2777369716b9a8872ada0d1ddeab6e8164d19ce
+    build-packages:
+      - gcc-11
+      - g++-11
+      - zlib1g-dev
+      - libnuma-dev
+      - python3
+      - pkg-config
+      - curl
+    override-pull: |
+      craftctl default
+      # Python 3.12: scapy 2.4.3 bundles six 1.10 (no find_spec), and the STL
+      # client imports the removed imp module.
+      curl -fsSLo /tmp/six.tar.gz \
+        https://files.pythonhosted.org/packages/source/s/six/six-1.17.0.tar.gz
+      echo "ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81  /tmp/six.tar.gz" \
+        | sha256sum -c -
+      tar -xzf /tmp/six.tar.gz -C /tmp six-1.17.0/six.py
+      cp /tmp/six-1.17.0/six.py scripts/external_libs/scapy-2.4.3/scapy/modules/six.py
+      sed -i 's/^import imp$/import importlib as imp/' \
+        scripts/automation/trex_control_plane/interactive/trex/stl/trex_stl_streams.py
+    override-build: |
+      cd linux_dpdk
+      # Newer GCC rejects upstream warnings promoted to errors; GCC 11 builds it as-is.
+      CC=gcc-11 CXX=g++-11 ./b configure --no-mlx=all
+      CC=gcc-11 CXX=g++-11 ./b build -j"${CRAFT_PARALLEL_BUILD_COUNT}" --no-old
+      cd ..
+      dest="${CRAFT_PART_INSTALL}/opt/trex"
+      mkdir -p "${dest}"
+      cp -rL scripts/. "${dest}/"
+      rm -rf "${dest}"/*-debug* "${dest}"/so/ppc64le "${dest}"/so/arm
+      find "${dest}" -name "__pycache__" -prune -exec rm -rf {} +
+      strip "${dest}/_t-rex-64" "${dest}"/so/x86_64/*.so* || true
+      git rev-parse HEAD > "${dest}/SOURCE_COMMIT"
+  wrappers:
+    plugin: dump
+    source: wrappers
+    organize:
+      "*": bin/
