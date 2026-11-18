@@ -13,9 +13,9 @@ description: |
   fuelled by DPDK. This snap packages the TRex server, console and Python
   automation client from the upstream trex-core source.
 
-  The server runs in af_packet mode on kernel interfaces, without hugepages
-  or NIC driver binding. DPDK PCI mode is not supported under strict
-  confinement.
+  The default server uses af_packet on kernel interfaces. The native command
+  uses an operator-prepared dedicated VFIO NIC with hugepages and an explicit
+  custom-device connection. Neither command requires classic confinement.
 
   **Setup**
 
@@ -34,6 +34,7 @@ description: |
   **Commands**
 
   - `trex-generator.t-rex-64`: TRex server
+  - `trex-generator.native`: native DPDK on a preconfigured VFIO NIC
   - `trex-generator.console`: interactive console
   - `trex-generator.python`: Python with the TRex automation client
 
@@ -51,6 +52,17 @@ apps:
       - hardware-observe
       - system-observe
       - process-control
+  native:
+    command: bin/trex-server --native
+    plugs:
+      - network
+      - network-bind
+      - network-control
+      - hardware-observe
+      - system-observe
+      - process-control
+      - hugepages-control
+      - vfio
   console:
     command: bin/trex-python $SNAP/opt/trex/trex-console
     plugs:
@@ -60,6 +72,11 @@ apps:
     plugs:
       - network
       - network-bind
+
+plugs:
+  vfio:
+    interface: custom-device
+    custom-device: trex-vfio
 
 parts:
   trex:

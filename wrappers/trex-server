@@ -1,13 +1,39 @@
 #!/bin/bash
 set -e
+native=false
+if [[ "${1:-}" == "--native" ]]; then
+  native=true
+  shift
+fi
 # DPDK keeps its runtime files (config, telemetry socket) under RUNTIME_DIRECTORY.
 export RUNTIME_DIRECTORY="$SNAP_DATA/run"
 mkdir -p "$RUNTIME_DIRECTORY"
-args=("$@")
-if [[ " $* " != *" --cfg"* ]]; then
+args=()
+configured=false
+for arg in "$@"; do
+  case "$arg" in
+    --cfg)
+      configured=true
+      args+=("$arg")
+      ;;
+    --cfg=*)
+      configured=true
+      args+=(--cfg "${arg#--cfg=}")
+      ;;
+    *)
+      args+=("$arg")
+      ;;
+  esac
+done
+if ! "$configured"; then
   config="$(snapctl get config)"
   args+=(--cfg "$SNAP_COMMON/${config:-trex_cfg.yaml}")
 fi
 # The upstream launcher expects its own directory as cwd.
 cd "$SNAP/opt/trex"
+if "$native"; then
+  # The operator prepares hugepages and VFIO binding outside confinement.
+  export LD_LIBRARY_PATH="$PWD"
+  exec ./_t-rex-64 "${args[@]}"
+fi
 exec ./t-rex-64 "${args[@]}"

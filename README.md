@@ -6,6 +6,7 @@ confinement.
 
 - [Security](SECURITY.md)
 - [Contributing](CONTRIBUTING.md)
+- [Native DPDK on a dedicated VFIO NIC/VF](docs/native.md)
 
 ## Build
 
